@@ -1,0 +1,222 @@
+material Mirror {
+    albedo {
+        1;
+    }
+
+    roughness {
+        0.0;
+    }
+
+    metallic {
+        1.0;
+    }
+}
+
+material White {
+    albedo {
+        vec3(0.9, 0.9, 0.9);
+    }
+
+    roughness {
+        0.0;
+    }
+}
+
+material BackWallMaterial {
+    albedo {
+        vec3(0.95, 0.9, 0.85);
+    }
+
+    roughness {
+        hash;
+    }
+
+    metallic {
+        0.2;
+    }
+}
+
+material YellowEmissive {
+    albedo {
+        vec3(0.9, 0.9, 0.9);
+    }
+
+    roughness {
+        0.0;
+    }
+
+    emission {
+        vec3(0.9, 0.9, 0.2);
+    }
+}
+
+material Metal {
+    albedo {
+        0.95;
+    }
+
+    roughness {
+        0.5;
+    }
+
+    metallic {
+        1.0;
+    }
+}
+
+material Glass {
+    albedo {
+        1;
+    }
+
+    roughness {
+        0.5;
+    }
+
+    transmission {
+        1.0;
+    }
+
+    emission {
+        1.0;
+    }
+}
+
+material Bricks {
+    albedo {
+        vec3(1.0, 0.5, 0.5) + (hash - 0.5) * 0.3;
+    }
+    roughness {
+        1;
+    }
+}
+
+material Wood {
+    albedo {
+        vec3(0.70, 0.40, 0.20) + (hash - 0.5) * 0.2;
+    }
+    roughness {
+        1;
+    }
+}
+
+config background {
+    0.7;
+}
+
+voxel Box size = vec3(5, 3, 5) {
+
+    shape Rect {
+
+        segment Left depth = 1.0 {
+            if d <= 0.05 {
+                // Back Wall Color
+                White;
+            } else
+            if d < 0.2 {
+                // Bricks in the middle
+                pattern Bricks {
+                    brick {
+                        Bricks;
+                    }
+                    cement {
+                        White;
+                    }
+                } 
+            } else {
+                // Two small cabinets next to the mirror
+                shape Rect at = vec2(0.95, 0.91), size = vec2(1.2, 1.5) {
+                    if d < 0.35 {
+                        if inside < 0.2 {
+                            YellowEmissive;
+                        }
+                    } 
+                }
+                shape Rect at = vec2(0.1, 0.91), size = vec2(1.2, 1.5) {
+                    if d < 0.3 {
+                        if inside < 0.2 {
+                            YellowEmissive;
+                        }
+                    } 
+                }                
+            }
+
+            // Place a round mirror centered on the wall
+            shape Disc at = vec2(0.5, 0.85), radius = 0.75 {
+                if d > 0.20 && d < 0.22 {
+                    if inside < 0.15 {
+                        Metal;
+                    } else {
+                        Mirror;
+                    }
+                }
+            }
+
+            // Cabinet
+            shape Rect at = vec2(0.5, 0.0), size = vec2(3.5, 1.2) {
+                if d > 0.2 {
+                    White;
+                }
+
+                if d > 0.9 {
+                    // Relief
+                    let relief = fract(u / 0.3);            
+                    if v < 1.0 && relief > 0.1 && relief < 0.8 {
+                        Clear;
+                    }
+                }
+
+                // Cutout for the basin
+                if v > 1.0 && d > 0.35 && d < 0.9 && (u > 1.8 && u < 3.2) {
+                    Clear;
+                }
+            }
+        }
+    }
+
+    segment Back depth = 0.2 {
+        if v < 2.9 {
+            pattern Bricks size = vec2(10, 0.1), gap = 0.09, rounding = 0.0 {
+                brick {
+                    BackWallMaterial;
+                }
+                cement {
+                    if d < 0.18 {
+                        BackWallMaterial;
+                    }
+                }
+            }  
+        } else {
+            White;
+        }            
+
+        // Place a window
+        shape Rect at = vec2(0.5, 0.7), size = vec2(2, 1.4) {
+            Clear; // Clear window voxels
+            if d > 0.08 && d < 0.12 {
+                Glass; // Add Glass in the middle
+            }
+        }
+    }
+
+    segment Floor {      
+
+        if_clear {  
+            if d >  0.08 {
+                pattern Bricks size = vec2(1.2, 0.15), gap = 0.01, rounding = 0.0 {
+                    brick {
+                        Wood;
+                    }
+                    cement {
+                        Wood;
+                    }
+                }    
+            }  else {
+                White;
+            } 
+        }
+    }
+}
+
+place Box at = vec3(0, 0, 0);
+
