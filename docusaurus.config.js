@@ -81,6 +81,13 @@ const config = {
     ({
       // Social card
       image: 'img/shape-z-round.png',
+      metadata: [
+        { name: 'keywords', content: 'Shape-Z, voxel, programming, procedural, modeling, language' },
+        { name: 'author', content: 'Markus Moenig' },
+        // { name: 'twitter:card', content: 'summary_large_image' },
+        // { name: 'og:title', content: 'Shape-Z – Shape Processing Language' },
+        // { name: 'og:image', content: 'https://shape-z.com/img/og-shapez.png' },
+      ],
       navbar: {
         title: 'Shape-Z',
         logo: {
