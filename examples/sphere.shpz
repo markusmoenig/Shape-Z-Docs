@@ -1,0 +1,1 @@
+shape Sphere { Radius(0.35); if inside { Color(0.2, 0.6, 1.0); } }
