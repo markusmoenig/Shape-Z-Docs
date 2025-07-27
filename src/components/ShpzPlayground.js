@@ -309,7 +309,8 @@ export default function ShpzPlayground({
         overflow: 'hidden',
         borderRadius: 6,
         fontFamily: 'var(--ifm-font-family-base)',
-        background: 'var(--ifm-background-color)'
+        background: 'var(--ifm-background-color)',
+        marginBottom: '1.5rem'
       }}
     >
       {caption ? (
@@ -347,7 +348,9 @@ export default function ShpzPlayground({
               setSource(v ?? '');
             }}
             theme="vs-dark"
-            options={{ fontSize: 14, minimap: { enabled: false } }}
+            options={{
+              fontSize: 14, minimap: { enabled: false }, scrollBeyondLastLine: false
+            }}
             onMount={async (editor, monaco) => {
               try { await setupShapezGrammar(monaco, editor); }
               catch (e) { console.error('Grammar setup failed:', e); }

@@ -1,0 +1,8 @@
+voxel Box size = 4 {
+    let dist = length(local) - 2; // Sphere with a radius of 2.0
+    if dist <= 0.0 {
+        Black;
+    }
+}
+
+place Box at = 0;

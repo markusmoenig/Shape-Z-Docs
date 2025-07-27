@@ -1,0 +1,13 @@
+voxel Box size = 4 {
+    shape Rect {
+        segment Left depth = 0.3 {
+            if u <= 2 {
+                White;
+            } else {
+                Black;
+            }
+        }
+    }
+}
+
+place Box at = 0;

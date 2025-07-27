@@ -1,0 +1,42 @@
+---
+sidebar_position: 2
+---
+
+import ShpzPlayground from '@site/src/components/ShpzPlayground';
+
+# Quick Start Guide
+
+Let's get started with **Shape-Z** by creating a voxel box with the dimensions of 4x4x4 units and placing it at the origin. One unit (or tile) corresponds to a 1x1x1 cube in world space. By default **Shape-Z** uses a **density** of `40`, meaning:
+- 1 unit = 40 × 40 × 40 = 64,000 voxels
+- A shape of 4x4x4 units becomes 160 × 160 × 160 voxels
+- That’s a total of 4,096,000 voxels
+
+You can easily change the density, more on that later.
+
+<ShpzPlayground
+    src = "/examples/quick1.shpz"
+    height={250}
+    caption="Cube"
+/>
+
+The `Black` material is one of the 4 default materials of **Shape-Z**. Here, we are simply telling the system to apply the Black material to every voxel inside the box.
+
+**Shape-Z** uses a math syntax similar to **GLSL**, but internally it operates entirely on a single type: `vec3`.  
+In the next example, we manually calculate the distance to a sphere at the center of the voxel box.  
+While **Shape-Z** offers many built-in tools to simplify tasks like this, it's helpful to understand that you can also write code much like a fragment shader.
+
+<ShpzPlayground
+    src = "/examples/quick2.shpz"
+    height={300}
+    caption="Manual Sphere"
+/>
+
+The system variable `local` defines the position of each voxel in local space, with the origin at the center of the voxel box.
+
+Now let's get started with some core modeling mechanics. Shapes subdivide space and can further be folded via segments.
+
+<ShpzPlayground
+    src = "/examples/quick3.shpz"
+    height={300}
+    caption="Left Wall"
+/>
