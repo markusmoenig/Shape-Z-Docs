@@ -263,6 +263,23 @@ export class Renderer {
         return ret !== 0;
     }
     /**
+     * Returns a human-readable summary for the last `execute()` call, e.g.
+     * "compiled X voxels in Ys". Empty until `prepare()` runs.
+     * @returns {string}
+     */
+    exec_summary() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const ret = wasm.renderer_exec_summary(this.__wbg_ptr);
+            deferred1_0 = ret[0];
+            deferred1_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
      * @param {number} target
      */
     set_target_samples(target) {
@@ -313,7 +330,6 @@ export class Renderer {
         return ret !== 0;
     }
     /**
-     * Alias for older playground code
      * @param {number} n
      * @returns {boolean}
      */
@@ -440,6 +456,20 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_getRandomValues_80578b2ff2a093ba = function() { return handleError(function (arg0) {
         globalThis.crypto.getRandomValues(arg0);
     }, arguments) };
+    imports.wbg.__wbg_get_67b2ba62fc30de12 = function() { return handleError(function (arg0, arg1) {
+        const ret = Reflect.get(arg0, arg1);
+        return ret;
+    }, arguments) };
+    imports.wbg.__wbg_instanceof_Performance_0ac1286c87171f57 = function(arg0) {
+        let result;
+        try {
+            result = arg0 instanceof Performance;
+        } catch (_) {
+            result = false;
+        }
+        const ret = result;
+        return ret;
+    };
     imports.wbg.__wbg_instanceof_Window_def73ea0955fc569 = function(arg0) {
         let result;
         try {
@@ -471,6 +501,14 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_newwithlength_a381634e90c276d4 = function(arg0) {
         const ret = new Uint8Array(arg0 >>> 0);
+        return ret;
+    };
+    imports.wbg.__wbg_now_807e54c39636c349 = function() {
+        const ret = Date.now();
+        return ret;
+    };
+    imports.wbg.__wbg_now_d18023d54d4e5500 = function(arg0) {
+        const ret = arg0.now();
         return ret;
     };
     imports.wbg.__wbg_set_65595bdd868b3009 = function(arg0, arg1, arg2) {

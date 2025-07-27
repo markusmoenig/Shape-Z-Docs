@@ -101,13 +101,36 @@ export default function ShpzPlayground({
   }, []);
 
   const renderProgressive = useCallback(async (mod) => {
-    await yieldToPaint();
     if (mod.Renderer && typeof mod.Renderer === 'function') {
       const r = new mod.Renderer(source, renderWidth, renderHeight);
       if (typeof r.set_target_samples === 'function') {
         try { r.set_target_samples(totalSamples >>> 0); } catch (_) { }
       }
-      setProgressText(`0/${totalSamples}`);
+
+      // Read target from renderer if available
+      let tgt = totalSamples >>> 0;
+      if (typeof r.target_samples === 'function') {
+        try { tgt = r.target_samples(); } catch (_) { }
+      }
+
+      // Prepare once (runs execute) and capture summary for bottom-right label
+      try {
+        if (typeof r.prepare === 'function') {
+          r.prepare();
+        }
+        if (typeof r.exec_summary === 'function') {
+          const summary = r.exec_summary();
+          if (summary) setCompileMsg(summary);
+        }
+      } catch (e) {
+        console.error('Renderer prepare failed:', e);
+        setProgressText('ERR');
+        return;
+      }
+
+      // Let the UI paint the new status before we start sampling
+      await yieldToPaint();
+      setProgressText(`0/${tgt}`);
 
       const tick = () => {
         try {
@@ -126,15 +149,11 @@ export default function ShpzPlayground({
 
           let prog = 0;
           let cur = null;
-          let tgt = totalSamples;
           if (typeof r.progress === 'function') {
             try { prog = Math.max(0, Math.min(1, r.progress())); } catch (_) { }
           }
           if (typeof r.current_samples === 'function') {
             try { cur = r.current_samples(); } catch (_) { }
-          }
-          if (typeof r.target_samples === 'function') {
-            try { tgt = r.target_samples(); } catch (_) { }
           }
           if (cur != null && tgt) {
             prog = Math.max(prog, Math.min(1, cur / tgt));
