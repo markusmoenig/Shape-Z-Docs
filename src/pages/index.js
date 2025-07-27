@@ -4,6 +4,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 // import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import MarkdownPage from './front.md';
+import ShpzPlayground from '@site/src/components/ShpzPlayground';
 
 import Heading from '@theme/Heading';
 import styles from './index.module.css';
@@ -21,7 +22,7 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-            Docusaurus Tutorial - 5min ⏱️
+            Get Started
           </Link>
         </div>
       </div>
@@ -35,10 +36,11 @@ export default function Home() {
     <Layout
       title={`Welcome to ${siteConfig.title}`}
       description="Shape That Next Big Vision of Yours">
-      {/* <HomepageHeader /> */}
+      <HomepageHeader />
       <main>
         <div className="center-content">
           <MarkdownPage />
+          <ShpzPlayground />
         </div>
       </main>
     </Layout>

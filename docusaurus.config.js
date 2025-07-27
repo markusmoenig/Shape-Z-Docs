@@ -167,3 +167,30 @@ const config = {
 };
 
 export default config;
+
+config.plugins = [
+  function configureWebpackPlugin() {
+    return {
+      name: 'custom-webpack-config',
+      configureWebpack() {
+        return {
+          resolve: {
+            fallback: {
+              path: false,
+            },
+          },
+        };
+      },
+    };
+  },
+  function monacoTextmateWebpack() {
+    return {
+      name: 'monaco-textmate-webpack-fallback',
+      configureWebpack() {
+        return {
+          resolve: { fallback: { path: false } }
+        };
+      },
+    };
+  },
+];

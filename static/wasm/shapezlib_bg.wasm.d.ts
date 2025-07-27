@@ -1,0 +1,27 @@
+/* tslint:disable */
+/* eslint-disable */
+export const memory: WebAssembly.Memory;
+export const __wbg_compileinfo_free: (a: number, b: number) => void;
+export const compileinfo_ok: (a: number) => number;
+export const compileinfo_message: (a: number) => [number, number];
+export const compile_check: (a: number, b: number, c: number, d: number) => number;
+export const __wbg_renderer_free: (a: number, b: number) => void;
+export const renderer_new: (a: number, b: number, c: number, d: number) => [number, number, number];
+export const renderer_set_target_samples: (a: number, b: number) => void;
+export const renderer_current_samples: (a: number) => number;
+export const renderer_target_samples: (a: number) => number;
+export const renderer_progress: (a: number) => number;
+export const renderer_width: (a: number) => number;
+export const renderer_height: (a: number) => number;
+export const renderer_step_samples: (a: number, b: number) => number;
+export const renderer_step: (a: number, b: number) => number;
+export const renderer_frame_rgba: (a: number) => [number, number];
+export const compile: (a: number, b: number) => [number, number, number, number];
+export const __wbindgen_exn_store: (a: number) => void;
+export const __externref_table_alloc: () => number;
+export const __wbindgen_export_2: WebAssembly.Table;
+export const __wbindgen_free: (a: number, b: number, c: number) => void;
+export const __wbindgen_malloc: (a: number, b: number) => number;
+export const __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+export const __externref_table_dealloc: (a: number) => void;
+export const __wbindgen_start: () => void;

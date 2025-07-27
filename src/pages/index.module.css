@@ -21,3 +21,14 @@
   align-items: center;
   justify-content: center;
 }
+
+.heroBanner {
+  background-image: url('/img/examples/bathroom.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.hero__title {
+  color: var(--ifm-color-primary);
+}

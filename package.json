@@ -17,10 +17,16 @@
     "@docusaurus/core": "3.8.1",
     "@docusaurus/preset-classic": "3.8.1",
     "@mdx-js/react": "^3.0.0",
+    "@monaco-editor/react": "^4.7.0",
     "clsx": "^2.0.0",
+    "monaco-editor": "^0.52.2",
+    "monaco-editor-textmate": "^4.0.0",
+    "monaco-textmate": "^3.0.1",
+    "onigasm": "^2.2.5",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "vscode-oniguruma": "^2.0.1"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.8.1",
