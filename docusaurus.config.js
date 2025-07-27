@@ -43,11 +43,43 @@ const config = {
 
   headTags: [
     {
+      tagName: 'script',
+      attributes: {},
+      innerHTML: `window.coi = {
+      // Prefer COEP: require-corp (most consistent across browsers)
+      coepCredentialless: () => false,
+      // allow fallback if SW decides to degrade
+      coepDegrade: () => true,
+      // one-time reload helper (used by the SW)
+      doReload: () => window.location.reload(),
+      quiet: false
+    };`,
+    },
+    { tagName: 'script', attributes: { src: '/coi-serviceworker.min.js' } },
+    { tagName: 'script', attributes: { type: 'module', src: '/wasm/wasm-loader.js' } },
+    {
       tagName: "link",
       attributes: {
         rel: "stylesheet",
         href: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
       },
+    },
+  ],
+
+  plugins: [
+    function customWebpackConfig() {
+      return {
+        name: 'custom-webpack-config',
+        configureWebpack() {
+          return {
+            resolve: {
+              fallback: {
+                path: false,
+              },
+            },
+          };
+        },
+      };
     },
   ],
 
@@ -167,30 +199,3 @@ const config = {
 };
 
 export default config;
-
-config.plugins = [
-  function configureWebpackPlugin() {
-    return {
-      name: 'custom-webpack-config',
-      configureWebpack() {
-        return {
-          resolve: {
-            fallback: {
-              path: false,
-            },
-          },
-        };
-      },
-    };
-  },
-  function monacoTextmateWebpack() {
-    return {
-      name: 'monaco-textmate-webpack-fallback',
-      configureWebpack() {
-        return {
-          resolve: { fallback: { path: false } }
-        };
-      },
-    };
-  },
-];

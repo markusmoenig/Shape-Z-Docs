@@ -1,17 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Layout from '@theme-original/Layout';
 
 export default function LayoutWrapper(props) {
-    console.log("✅ Custom Layout loaded");
-
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = '/wasm/wasm-loader.js';
-        script.async = true;
-        document.body.appendChild(script);
-        console.log("🚀 Injected wasm-loader.js");
-    }, []);
-
+    // console.log('✅ Custom Layout loaded');
     return <Layout {...props} />;
 }

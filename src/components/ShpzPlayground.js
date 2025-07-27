@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import Editor from '@monaco-editor/react';
 import { setupShapezGrammar } from '../utils/loadShapezGrammar';
 
@@ -12,11 +13,13 @@ export default function ShpzPlayground({
   renderWidth = 400,
   renderHeight = 400,
   samplesPerFrame = 1,
-  totalSamples = 64
+  totalSamples = 10
 }) {
   const [source, setSource] = useState(code);
   const [status, setStatus] = useState('Ready');
   const [loading, setLoading] = useState(false);
+  const [compileMsg, setCompileMsg] = useState('Ready');
+  const [progressText, setProgressText] = useState('');
 
   const containerRef = useRef(null);
   const leftPaneRef = useRef(null);
@@ -27,6 +30,13 @@ export default function ShpzPlayground({
   const splitKeyRef = useRef(null);
 
   const isBrowser = typeof window !== 'undefined';
+
+  const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => resolve()));
+  const yieldToPaint = async () => {
+    // rAF runs before paint; the extra setTimeout lets the browser commit the paint
+    await nextFrame();
+    await new Promise((r) => setTimeout(r, 0));
+  };
 
   const applySplit = useCallback((percent) => {
     if (!leftPaneRef.current || !rightPaneRef.current) return;
@@ -91,12 +101,13 @@ export default function ShpzPlayground({
   }, []);
 
   const renderProgressive = useCallback(async (mod) => {
+    await yieldToPaint();
     if (mod.Renderer && typeof mod.Renderer === 'function') {
       const r = new mod.Renderer(source, renderWidth, renderHeight);
       if (typeof r.set_target_samples === 'function') {
         try { r.set_target_samples(totalSamples >>> 0); } catch (_) { }
       }
-      setStatus(`Rendering 0% (0/${totalSamples} spp)`);
+      setProgressText(`0/${totalSamples}`);
 
       const tick = () => {
         try {
@@ -129,17 +140,18 @@ export default function ShpzPlayground({
             prog = Math.max(prog, Math.min(1, cur / tgt));
           }
           const pct = Math.round(prog * 100);
-          setStatus(`Rendering ${pct}%${cur != null ? ` (${cur}/${tgt} spp)` : ''}`);
+          const displayCur = cur != null ? cur : Math.round(prog * tgt);
+          setProgressText(`${displayCur}/${tgt}`);
 
           if (!finished) {
             rafRef.current = requestAnimationFrame(tick);
           } else {
-            setStatus('Done');
+            setProgressText('');
             rafRef.current = 0;
           }
         } catch (e) {
           console.error('Progressive render failed:', e);
-          setStatus('Render failed');
+          setProgressText('ERR');
           rafRef.current = 0;
         }
       };
@@ -163,7 +175,7 @@ export default function ShpzPlayground({
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
         URL.revokeObjectURL(url);
-        setStatus('Done');
+        setProgressText('');
       };
       img.onerror = () => setStatus('Render failed');
       img.src = url;
@@ -175,7 +187,11 @@ export default function ShpzPlayground({
 
   const runCheckThenRender = useCallback(async () => {
     stopLoop();
-    setLoading(true);
+    flushSync(() => {
+      setLoading(true);
+      setProgressText('Compiling Voxels…');
+    });
+    await yieldToPaint();
     try {
       if (!isBrowser || !window.shapezWasmModule) throw new Error('WASM not ready');
       const mod = await window.shapezWasmModule;
@@ -185,18 +201,38 @@ export default function ShpzPlayground({
         const info = mod.compile_check(source, renderWidth, renderHeight);
         const ok = typeof info.ok === 'function' ? info.ok() : info.ok;
         const msg = typeof info.message === 'function' ? info.message() : info.message;
-        setStatus(msg || (ok ? 'OK' : 'Error'));
-        if (!ok) { setLoading(false); return; }
+        setCompileMsg(msg || (ok ? 'OK' : 'Error'));
+        if (!ok) { setProgressText(''); setLoading(false); return; }
       }
 
       await renderProgressive(mod);
     } catch (e) {
       console.error(e);
       setStatus(String(e.message || e));
+      setProgressText('');
     } finally {
       setLoading(false);
     }
   }, [isBrowser, source, renderWidth, renderHeight, renderProgressive]);
+
+  const runCheckOnly = useCallback(async () => {
+    stopLoop();
+    setProgressText('');
+    try {
+      if (!isBrowser || !window.shapezWasmModule) return;
+      const mod = await window.shapezWasmModule;
+      if (typeof mod.compile_check === 'function') {
+        setStatus('Checking…');
+        const info = mod.compile_check(source, renderWidth, renderHeight);
+        const ok = typeof info.ok === 'function' ? info.ok() : info.ok;
+        const msg = typeof info.message === 'function' ? info.message() : info.message;
+        setCompileMsg(msg || (ok ? 'OK' : 'Error'));
+      }
+    } catch (e) {
+      console.error(e);
+      setStatus(String(e.message || e));
+    }
+  }, [isBrowser, source, renderWidth, renderHeight]);
 
   useEffect(() => {
     if (!isBrowser) return;
@@ -208,9 +244,9 @@ export default function ShpzPlayground({
 
   useEffect(() => {
     if (!autoCompile) return;
-    const t = setTimeout(() => runCheckThenRender(), 350);
+    const t = setTimeout(() => runCheckOnly(), 350);
     return () => clearTimeout(t);
-  }, [source, autoCompile, runCheckThenRender]);
+  }, [source, autoCompile, runCheckOnly]);
 
   const onMouseDown = () => { isResizing.current = true; };
   const onMouseMove = (e) => {
@@ -271,6 +307,13 @@ export default function ShpzPlayground({
           }}
         >
           <span>{caption}</span>
+          <span style={{
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+            fontVariantNumeric: 'tabular-nums',
+            opacity: 0.75
+          }}>
+            {progressText}
+          </span>
         </div>
       ) : null}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -279,7 +322,11 @@ export default function ShpzPlayground({
             height="100%"
             defaultLanguage="shpz"
             value={source}
-            onChange={(v) => setSource(v ?? '')}
+            onChange={(v) => {
+              stopLoop();
+              setProgressText('');
+              setSource(v ?? '');
+            }}
             theme="vs-dark"
             options={{ fontSize: 14, minimap: { enabled: false } }}
             onMount={async (editor, monaco) => {
@@ -332,13 +379,15 @@ export default function ShpzPlayground({
               color: 'white',
               fontSize: 13,
               lineHeight: 1.2,
-              cursor: loading ? 'default' : 'pointer'
+              cursor: loading ? 'default' : 'pointer',
+              opacity: loading ? 0.85 : 1,
+              transition: 'opacity 120ms ease'
             }}
           >
             {loading ? 'Working…' : 'Compile & Render'}
           </button>
         </div>
-        <span style={{ fontSize: 13, color: 'var(--ifm-color-emphasis-700, #555)' }}>{status}</span>
+        <span style={{ fontSize: 13, color: 'var(--ifm-color-emphasis-700, #555)' }}>{compileMsg}</span>
       </div>
     </div>
   );
