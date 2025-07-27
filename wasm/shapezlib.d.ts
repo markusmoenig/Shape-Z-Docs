@@ -21,6 +21,11 @@ export class Renderer {
    * Prepare heavy scene evaluation once (runs ShapeZ::execute).
    */
   prepare(): boolean;
+  /**
+   * Returns a human-readable summary for the last `execute()` call, e.g.
+   * "compiled X voxels in Ys". Empty until `prepare()` runs.
+   */
+  exec_summary(): string;
   set_target_samples(target: number): void;
   current_samples(): number;
   target_samples(): number;
@@ -29,9 +34,6 @@ export class Renderer {
    * Add N path-trace samples (SPP). Returns true if target reached.
    */
   step_samples(n: number): boolean;
-  /**
-   * Alias for older playground code
-   */
   step(n: number): boolean;
   /**
    * Returns a displayable RGBA8 buffer (tonemapped + gamma) with len=w*h*4
@@ -64,6 +66,7 @@ export interface InitOutput {
   readonly __wbg_renderer_free: (a: number, b: number) => void;
   readonly renderer_new: (a: number, b: number, c: number, d: number) => [number, number, number];
   readonly renderer_prepare: (a: number) => number;
+  readonly renderer_exec_summary: (a: number) => [number, number];
   readonly renderer_set_target_samples: (a: number, b: number) => void;
   readonly renderer_current_samples: (a: number) => number;
   readonly renderer_target_samples: (a: number) => number;

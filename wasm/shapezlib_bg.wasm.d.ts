@@ -12,6 +12,7 @@ export const compile_check: (a: number, b: number, c: number, d: number) => numb
 export const __wbg_renderer_free: (a: number, b: number) => void;
 export const renderer_new: (a: number, b: number, c: number, d: number) => [number, number, number];
 export const renderer_prepare: (a: number) => number;
+export const renderer_exec_summary: (a: number) => [number, number];
 export const renderer_set_target_samples: (a: number, b: number) => void;
 export const renderer_current_samples: (a: number) => number;
 export const renderer_target_samples: (a: number) => number;
