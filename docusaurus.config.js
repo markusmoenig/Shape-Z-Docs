@@ -116,9 +116,6 @@ const config = {
       metadata: [
         { name: 'keywords', content: 'Shape-Z, voxel, programming, procedural, modeling, language' },
         { name: 'author', content: 'Markus Moenig' },
-        // { name: 'twitter:card', content: 'summary_large_image' },
-        // { name: 'og:title', content: 'Shape-Z – Shape Processing Language' },
-        // { name: 'og:image', content: 'https://shape-z.com/img/og-shapez.png' },
       ],
       navbar: {
         title: 'Shape-Z',
@@ -135,6 +132,25 @@ const config = {
           },
           // { to: '/blog', label: 'Blog', position: 'left' },
           { to: "/news", label: "News", position: "left" },
+          { to: "/sponsor", label: "Sponsor", position: "left" },
+          {
+            type: "html",
+            position: "right",
+            value: `
+              <a href=" https://discord.gg/sZzQENHwVa" class="navbar-icon" title="Shape-Z Discord">
+                <i class="fab fa-fw fa-discord"></i>
+              </a>
+            `,
+          },
+          {
+            type: "html",
+            position: "right",
+            value: `
+              <a href="https://x.com/markusmoenig" class="navbar-icon" title="X">
+                <i class="fab fa-x"></i>
+              </a>
+            `,
+          },
           {
             type: "html",
             position: "right",
@@ -156,32 +172,36 @@ const config = {
                 label: 'Installation',
                 to: '/docs/installation',
               },
+              {
+                label: 'Getting Started',
+                to: '/docs/quick_start',
+              },
             ],
           },
           {
             title: 'Community',
             items: [
-              {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-              },
+              // {
+              //   label: 'Stack Overflow',
+              //   href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              // },
               {
                 label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
+                href: 'https://discord.gg/sZzQENHwVa',
               },
               {
                 label: 'X',
-                href: 'https://x.com/docusaurus',
+                href: 'https://x.com/markusmoenig',
               },
             ],
           },
           {
             title: 'More',
             items: [
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
+              // {
+              //   label: 'Blog',
+              //   to: '/blog',
+              // },
               {
                 label: 'GitHub',
                 href: 'https://github.com/facebook/docusaurus',

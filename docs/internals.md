@@ -1,6 +1,6 @@
 ---
 sidebar_position: 6
-title: Internals
+title: Internals & Todo
 ---
 
 **Shape-Z** has a manual parser which writes out an AST. The AST in turn compiles the code into a recursive byte code VM. The VM is about 15% slower than native rust code.
@@ -13,3 +13,13 @@ I choose a CPU architecture over a GPU one because of
 
 * The recursive nature of the language.
 * The more flexible access to large chunks of memory, in my tests I rendered 30-40 gigabyte of voxels without problems.
+
+---
+
+The todo list for Shape-Z is long.
+
+* Materials can be imported and re-used. However Objects (shape based reusable modules to share furniture and other content).
+* I am working on concepts for organic forms (trees, bushes, grass, vines).
+* More 3D mesh export formats beside .OBJ and support for textures (for patterns etc).
+* More SDF helpers (the list is nearly endless here).
+* A GitHub based treasury for materials and modules to build up a DB of content which Shape-Z can freely access.
