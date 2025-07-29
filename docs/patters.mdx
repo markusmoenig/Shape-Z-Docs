@@ -1,0 +1,62 @@
+---
+sidebar_position: 5
+title: Patterns
+---
+import ShpzPlayground from '@site/src/components/ShpzPlayground';
+
+**Patterns** in Shape-Z use the `u`, `v`, `d` coordinates provided by `shapes` and their `segments`. This makes them reusable across different shapes like `Rect` or `Disc`, and ensures they adapt cleanly to varying scale and orientation.
+
+Patterns define repeating structures or logic within a shape’s `volume` block. Each pattern may expose special variables like `hash` for variation between cells.
+
+---
+
+## Bricks
+
+Creates a staggered brick wall pattern, with support for mortar gaps and rounded corners.
+
+**Parameters:**
+
+- `size: vec2` — Size of one brick in `u`, `v` space. Default: `vec2(1.2, 0.15)`
+- `gap: float` — Width of the space between bricks. Default: `0.01`
+- `rounding: float` — Rounds the corners of each brick. Default: `0.0`
+- `brick {}` — Block executed for each brick
+- `cement {}` — Block executed for each mortar (non-brick space)
+
+**Material integration:**
+
+- `hash` — A float between 0.0 and 1.0 unique to each brick, passed to the material system for per-brick color variation.
+
+#### Example
+
+<ShpzPlayground
+    src = "/examples/pattern_bricks.shpz"
+    height={500}
+    caption="Bricks Pattern"
+/>
+
+
+---
+
+## Modulo
+
+Splits space into a regular grid of `u`/`v` cells and alternates between two outputs.
+
+**Parameters:**
+
+- `size: float` — Size of each repeating cell in `u`, `v`. Default: `0.02`
+- `even {}` — Block executed for even tiles
+- `odd {}` — Block executed for odd tiles
+
+This is useful for checkerboards, alternating patterns, or dithering effects.
+
+**Material integration:**
+
+- `hash` — A float between 0.0 and 1.0 unique to each cell, passed to the material system for per-cell color variation.
+
+#### Example
+
+<ShpzPlayground
+    src = "/examples/pattern_modulo.shpz"
+    height={500}
+    caption="Modulo Pattern"
+/>

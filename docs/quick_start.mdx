@@ -1,5 +1,6 @@
 ---
 sidebar_position: 2
+title: Quick Start Guide
 ---
 
 import ShpzPlayground from '@site/src/components/ShpzPlayground';
@@ -79,25 +80,35 @@ On the **Back** wall, we also place a `shape` to **clear** a window-sized space 
 
 On the `Left` wall, we placed some patches of cement or color **on top of the bricks**—just to demonstrate how we can model volumes with real **content layering** and **depth**.
 
-### Distance Functions
+### Distance Volumes — the 3-D side of Shape-Z
 
-Distance-based shapes in **Shape-Z**—like `Cylinder`, `RectFrustum`, `NgonFrustum`, `Cone`, `Capsule`, and `Vesica`—are defined between two points (`from`, `to`). Others like `Sphere` and `Box` use a center point (`at`) and a size.
+Shape-Z uses **two modelling ideas**:
 
-Inside a `distance` block, you work with normalized shape-local coordinates:
-- `d`: along the shape's axis (from 0 to 1)
-- `u`, `v`: horizontal and vertical coordinates within the cross-section at each `d`
+| Concept | What it draws | Typical nodes |
+|---------|---------------|---------------|
+| **Shapes** | An *extruded 2-D region* (walls, floors). They bring their own `u v d` coords and can be subdivided with segments. | `Rect`, `Disc`, … |
+| **Distance Volumes** | A *full 3-D solid* dropped **inside** the current shape. They also hand you a normalised `u v d` so patterns scale automatically. | `Sphere`, `Box`, `Cylinder`, … |
 
-These coordinates make it easy to apply consistent details, deformations, and materials regardless of size or orientation.
+#### How a distance block works
 
-A `volume { ... }` block defines the content inside the shape. You can also optionally define:
-- `profile_offset { ... }` to deform the surface
-- `profile_scale { ... }` to vary thickness over the shape
+A distance node gives you a **0 → 1 local frame**:
 
-This enables complex modeling like bulging bottles, tapering beams, or ornamental pillars with just a few lines of code.
+* `d` – runs along the axis (0 at `from`, 1 at `to`).
+* `u`, `v` – span the cross-section at each `d`.
+* `profile_scale {}` – scales the section **before** the SDF (tapers, bulges).
+* `profile_offset {}` – indents/bulges **after** the SDF (grooves, panels).
+* `volume {}` – writes voxels wherever the (possibly deformed) SDF is inside.
+
+There are also two helper variables:  
+* `sdf` – the raw signed distance (negative inside, positive outside).  
+* `inside` – convenience alias for `-sdf` (positive inside, zero on the surface).
+
+Below is a tapered, grooved cylinder built with exactly those hooks:
 
 <ShpzPlayground
-    src = "/examples/quick5.shpz"
+    src = "/examples/quick6.shpz"
     height={500}
-    caption="Distance Shapes with Profiles"
+    caption="Tapered, grooved cylinder"
 />
 
+We also use config instructions to set the **background** and raise the **density** to 60 (default is 40) to better see the profile of the cylinder.

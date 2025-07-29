@@ -13,7 +13,7 @@
 			"name": "keyword.control.shpz"
 		},
 		{
-			"match": "\\b(albedo|roughness|metallic|transmission|specular_tint|sheen|sheen_tint|sun_dir|sun_emission|emission|ior|clearcoat|clearcoat_gloss|brick|cement|even|odd|density|background|origin|center|scale|fov|Absorb|Emissive|color|density|volume)\\b",
+			"match": "\\b(albedo|roughness|metallic|transmission|specular_tint|sheen|sheen_tint|sun_dir|sun_emission|emission|ior|clearcoat|clearcoat_gloss|brick|cement|even|odd|density|background|origin|center|scale|fov|Absorb|Emissive|color|density|volume|profile_offset|profile_scale)\\b",
 			"name": "variable.other.member.shpz"
 		},
 		{

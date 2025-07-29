@@ -1,1 +1,117 @@
-shape Sphere { Radius(0.35); if inside { Color(0.2, 0.6, 1.0); } }
+{
+	"scopeName": "source.shpz",
+	"name": "Shape-Z",
+	"fileTypes": [
+		"shpz"
+	],
+	"patterns": [
+		{
+			"include": "#definitions"
+		},
+		{
+			"match": "\\b(voxel|pattern|place|attach|if|if_clear|else|let|material|Clear|config|import|camera|medium|distance)\\b",
+			"name": "keyword.control.shpz"
+		},
+		{
+			"match": "\\b(albedo|roughness|metallic|transmission|specular_tint|sheen|sheen_tint|sun_dir|sun_emission|emission|ior|clearcoat|clearcoat_gloss|brick|cement|even|odd|density|background|origin|center|scale|fov|Absorb|Emissive|color|density|volume|profile_offset|profile_scale)\\b",
+			"name": "variable.other.member.shpz"
+		},
+		{
+			"match": "\\b(vec2|vec3)\\b",
+			"name": "support.type.vec.shpz"
+		},
+		{
+			"match": "\\b(sin|cos|floor|fract|radians|degrees|length|abs|mix|smoothstep|clamp|smooth_union|value_noise|white_noise|sqrt|log|pow|tan|atan|atan2|dot|cross|normalize|log|point_at)\\b",
+			"name": "support.function.shpz"
+		},
+		{
+			"match": "\\b(sdf|inside|u|v|d|hash)\\b",
+			"name": "variable.language.shpz"
+		},
+		{
+			"match": "\\b[A-Z][A-Za-z0-9_]*\\s*;",
+			"name": "support.function.call.shpz"
+		},
+		{
+			"match": "==|!=|<=|>=|<|>",
+			"name": "keyword.operator.comparison.shpz"
+		},
+		{
+			"match": "\\|\\||&&",
+			"name": "keyword.operator.logical.shpz"
+		},
+		{
+			"match": "!",
+			"name": "keyword.operator.logical.not.shpz"
+		},
+		{
+			"match": "%",
+			"name": "keyword.operator.arithmetic.mod.shpz"
+		},
+		{
+			"match": "=",
+			"name": "keyword.operator.assignment.shpz"
+		},
+		{
+			"match": "[0-9]+(\\.[0-9]+)?",
+			"name": "constant.numeric.shpz"
+		},
+		{
+			"match": "\\{|\\}",
+			"name": "punctuation.brace.shpz"
+		},
+		{
+			"match": ";",
+			"name": "punctuation.terminator.shpz"
+		},
+		{
+			"match": "//.*$",
+			"name": "comment.line.double-slash.shpz"
+		},
+		{
+			"begin": "/\\*",
+			"end": "\\*/",
+			"name": "comment.block.shpz"
+		},
+		{
+			"match": "\"(?:\\\\.|[^\"\\\\])*\"",
+			"name": "string.quoted.double.shpz"
+		}
+	],
+	"repository": {
+		"definitions": {
+			"patterns": [
+				{
+					"begin": "\\b(voxel|segment|shape|pattern|place|camera|distance)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+					"beginCaptures": {
+						"1": {
+							"name": "keyword.control.shpz"
+						},
+						"2": {
+							"name": "string.quoted.name.shpz"
+						}
+					},
+					"end": "(?=\\{)",
+					"patterns": [
+						{
+							"match": "\\b(depth|radius|size|at|gap|rounding)\\b",
+							"name": "variable.parameter.shpz"
+						},
+						{
+							"match": "[0-9]+(\\.[0-9]+)?",
+							"name": "constant.numeric.shpz"
+						},
+						{
+							"match": "=",
+							"name": "keyword.operator.assignment.shpz"
+						},
+						{
+							"include": "$self"
+						}
+					]
+				}
+			]
+		}
+	},
+	"uuid": "shapez-lang-uuid"
+}

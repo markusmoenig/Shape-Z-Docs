@@ -1,0 +1,65 @@
+---
+sidebar_position: 3
+title: Shapes and Segments
+---
+import ShpzPlayground from '@site/src/components/ShpzPlayground';
+
+Shape-Z defines high-level **2D shapes** that can be extruded and subdivided with segments. These are the foundational building blocks for modeling walls, floors, and curved surfaces.
+
+Inside shapes we have two helper variables:  
+* `sdf` – the raw signed distance (negative inside, positive outside).  
+* `inside` – convenience alias for `-sdf` (positive inside, zero on the surface).
+
+### Rect
+
+A rectangular shape that spans the full domain in its plane. It supports **subsegments** like `Floor`, `Ceiling`, `Left`, `Right`, `Back`, and `Front`, which allow fine-grained control over geometry placement.
+
+- Coordinate system: **Cartesian**
+- Axes: `u`, `v`, `d` (e.g., for a Floor segment, `u = x`, `v = z`, `d = y`)
+- Typical usage: Rooms, flat walls, layered architecture
+
+#### Example
+
+<ShpzPlayground
+    code={`voxel Box size = vec3(3, 2, 3) {
+    shape Rect {
+        segment Floor depth = 0.2 {
+            Metal;
+        }
+        segment Left depth = 0.2 {
+            Metal;
+        }
+        segment Back depth = 0.2 {
+            Metal;
+        }
+    }
+}
+
+place Box at = 0;`}
+    height={450}
+    caption="Rect Shape with Segmented Walls and Floor"
+/>
+
+### Disc
+
+A circular shape with a radial layout. It does **not support subsegments**, but instead provides `u`, `v`, and `d` in **polar coordinates**, ideal for modeling towers, fans, and radial symmetry.
+
+- Coordinate system: **Polar**
+- `u`: angle (normalized 0–1)
+- `v`: radius (normalized)
+- `d`: height
+- Typical usage: Cylindrical bases, circular panels, decorative columns
+
+#### Example
+
+<ShpzPlayground
+    code={`voxel Box size = 3 {
+    shape Disc {
+        Metal;
+    }
+}
+
+place Box at = 0;`}
+    height={300}
+    caption="Disc shape with radial coordinates and cylinder"
+/>

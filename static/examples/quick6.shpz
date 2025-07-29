@@ -1,0 +1,33 @@
+config background {
+    1.0;
+}
+
+config density {
+    60;
+}
+
+camera Isometric {
+    scale {
+        30;
+    }
+};
+
+voxel Box size = vec3(4, 4, 4) {
+    shape Rect {
+        segment Floor depth = 4 {
+            distance Cylinder
+            from   = vec3(0.5,0.5,0.0),
+            to     = vec3(0.5,0.5,1.0),
+            radius = 0.4 {
+                profile_scale { 1.0 - 0.2 * d; }
+                profile_offset { -0.05 * cos(u*3.14*6.0); }
+
+                volume { 
+                    if inside < 0.05 { Metal; } 
+                }
+            }
+        } 
+    }
+}
+
+place Box at = vec3(0, 0, 0);

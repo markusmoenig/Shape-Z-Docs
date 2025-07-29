@@ -1,52 +1,251 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
+title: Distance Volumes
+---
+import ShpzPlayground from '@site/src/components/ShpzPlayground';
+
+All distance nodes accept three optional blocks:
+
+* **`profile_scale { … }`** &mdash; scale factor applied **before** the SDF (tapers, squash-and-stretch).  
+* **`profile_offset { … }`** &mdash; linear offset (world units) **subtracted** from the SDF (grooves, panels).  
+* **`volume { … }`** &mdash; runs only where the (possibly deformed) SDF is ≤ 0, letting you assign materials or patterns.
+
+Same as in shapes we also have these two helper variables (they shadow the shape variables);
+
+* `sdf` – the raw signed distance (negative inside, positive outside).  
+* `inside` – convenience alias for `-sdf` (positive inside, zero on the surface).
+
 ---
 
-# Distance Functions
+## Sphere
 
-**Shape-Z** supports a variety of signed distance functions (SDFs) for modeling volumetric geometry. Most of these (e.g., `Cylinder`, `RectFrustum`, `NgonFrustum`, `Cone`, `Capsule`, `Vesica`, `BoxBetween`) are defined **between two points**, via a `from` and `to` vector. Others, like `Sphere` and `Box`, are defined via an `at` position and their size in `u`, `v`, `d` coordinates.
+* `at`: centre &mdash; *default:* segment origin (`point_at(0)`).
+* `radius`(float): sphere radius &mdash; *default:* `0.5`.
 
-Inside any `distance` block, the system redefines `u`, `v`, and `d` as **normalized coordinates** in `[0,1]`, relative to the shape’s own coordinate space:
-- `d`: normalized axial position along the shape (0 at `from`, 1 at `to`)
-- `u`, `v`: normalized horizontal and vertical coordinates within the local cross-section at each `d`
-
-This normalized domain makes it easy to create reusable, size-independent patterns and deformations.
-
-#### `volume { ... }`
-
-The `volume` block defines what should be placed **inside** the shape. The system only evaluates this block for voxels that fall within the SDF (i.e., inside the shape boundary), and it gives access to the normalized `u`, `v`, `d` as well as the SDF value `inside` in world units.
-
-Example:
-```c
-if inside < 0.1 && d < 0.8 {
-    Whiskey;
+<ShpzPlayground
+  code={`\
+voxel Box size = vec3(3, 3, 3) {
+    shape Rect {
+        segment Floor depth = 3.0 {
+            distance Sphere at = 0.5 radius = 1.5 {
+                volume {
+                    Metal;
+                }
+            }
+        }
+    }
 }
-```
+place Box at = vec3(0, 0, 0);\
+`}
+  height={300}
+  caption="Sphere"
+/>
 
-#### `profile_offset { ... }`
+Simple ball shape.
 
-This optional block allows you to modify the shape's surface by **adding or removing thickness**. It returns a world-unit offset that is subtracted from the computed SDF.
+---
 
-- A positive return value **shrinks** the shape.
-- A negative return value **expands** the shape.
+## Box
 
-Example:
-```rust
-let ang  = atan2(v - 0.5, u - 0.5);
-let face = cos(ang * 4.0);
-let bell = 1.0 - pow(2.0 * abs(d - 0.5), 2.0);
--0.05 * face * bell;
-```
+* `at`: centre.
+* `size` (vec3): half-sizes (x y z) &mdash; *default:* `vec3(0.5)`.
+* `rounding` (float): edge bevel radius &mdash; *default:* `0.0`.
 
-This adds fourfold symmetric bulges to the sides of the shape, strongest around the center (`d = 0.5`).
+<ShpzPlayground
+  code={`\
+voxel Box size = vec3(3, 3, 3) {
+    shape Rect {
+        segment Floor depth = 3.0 {
+            distance Box at = 0.5 size = vec3(1.0, 0.8, 0.6) {
+                volume {
+                    Metal;
+                }
+            }
+        }
+    }
+}
+place Box at = vec3(0, 0, 0);\
+`}
+  height={300}
+  caption="Box"
+/>
 
-#### `profile_scale { ... }`
+Cuboid with optional bevel.
 
-This block allows the shape’s cross-section to be **scaled** per voxel before the SDF is computed. The return value is a **scale factor** applied to `u` and `v` dimensions (not `d`).
+---
 
-Example:
-```rust
-1.0 - 0.2 * smoothstep(0.0, 1.0, d);
-```
+## Capsule
 
-This line gradually scales down the cross-section toward the `to` end of the shape.
+* `from` (vec3): axis start.
+* `to` (vec3): axis end.
+* `radius` (float): cylinder/hemisphere radius &mdash; *default:* `0.5`.
+
+<ShpzPlayground
+  code={`\
+voxel Box size = vec3(3, 3, 3) {
+    shape Rect {
+        segment Floor depth = 3.0 {
+            distance Capsule from = vec3(0.5, 0.5, 0.2) to = vec3(0.5, 0.5, 2.8) radius = 0.5 {
+                volume {
+                    Metal;
+                }
+            }
+        }
+    }
+}
+place Box at = vec3(0, 0, 0);\
+`}
+  height={300}
+  caption="Capsule"
+/>
+
+Cylinder capped by hemispheres.
+
+---
+
+## Cylinder
+
+* `from` (vec3): axis start.
+* `to` (vec3): axis end.
+* `radius` (float): cylinder radius.
+
+<ShpzPlayground
+  code={`\
+voxel Box size = vec3(3, 3, 3) {
+    shape Rect {
+        segment Floor depth = 3.0 {
+            distance Cylinder from = vec3(0.5, 0.5, 0.2) to = vec3(0.5, 0.5, 2.8) radius = 1.0 {
+                volume {
+                    Metal;
+                }
+            }
+        }
+    }
+}
+place Box at = vec3(0, 0, 0);\
+`}
+  height={300}
+  caption="Cylinder"
+/>
+
+Flat-capped cylinder.
+
+---
+
+## Cone
+
+* `from` (vec3): axis start.
+* `to` (vec3): axis end.
+* `radius1` (float): base half-diameter &mdash; *default:* `0.5`.
+* `radius2` (float): top half-diameter &mdash; *default:* `0.25`.
+
+<ShpzPlayground
+  code={`\
+voxel Box size = vec3(3, 3, 3) {
+    shape Rect {
+        segment Floor depth = 3.0 {
+            distance Cone from = vec3(0.5, 0.5, 0.0) to = vec3(0.5, 0.5, 3.0) radius1 = 1.0 radius2 = 0.3 {
+                volume {
+                    Metal;
+                }
+            }
+        }
+    }
+}
+place Box at = vec3(0, 0, 0);\
+`}
+  height={300}
+  caption="Cone"
+/>
+
+Linear taper.
+
+---
+
+## Vesica
+
+* `from` (vec3): axis start.
+* `to` (vec3): axis end.
+* `radius` (float): lens half-thickness &mdash; *default:* `0.5`.
+
+<ShpzPlayground
+  code={`\
+voxel Box size = vec3(3, 3, 3) {
+    shape Rect {
+        segment Floor depth = 3.0 {
+            distance Vesica from = vec3(0.5, 0.5, 0.2) to = vec3(0.5, 0.5, 2.8) radius = 1.0 {
+                volume {
+                    Metal;
+                }
+            }
+        }
+    }
+}
+place Box at = vec3(0, 0, 0);\
+`}
+  height={300}
+  caption="Vesica"
+/>
+
+Lens / rugby-ball shape.
+
+---
+
+## NgonFrustum
+
+* `from`, `to` (vec3): axis ends.
+* `sides` (int ≥ 3): number of sides &mdash; *default:* `4`.
+* `base` (float): inscribed radius at `from`.
+* `top` (float): inscribed radius at `to`.
+* `phase` (float radians): rotation offset &mdash; *default:* `0`.
+
+<ShpzPlayground
+  code={`\
+voxel Box size = vec3(3, 3, 3) {
+    shape Rect {
+        segment Floor depth = 3.0 {
+            distance NgonFrustum from = vec3(0.5, 0.5, 0.0) to = vec3(0.5, 0.5, 3.0) sides = 6 base = 1.0 top = 0.5 phase = 0 {
+                volume {
+                    Metal;
+                }
+            }
+        }
+    }
+}
+place Box at = vec3(0, 0, 0);\
+`}
+  height={300}
+  caption="NgonFrustum"
+/>
+
+Extruded regular N-gon; `sides = 4` gives a pyramid frustum.
+
+---
+
+## RectFrustum
+
+* `from`, `to` (vec3): axis ends.
+* `base_wh` (vec2): width × height at `from`.
+* `top_wh` (vec2): width × height at `to` &mdash; *default:* same as `base_wh`.
+* `angle` (float radians): rotation &mdash; *default:* `0`.
+
+<ShpzPlayground
+  code={`\
+voxel Box size = vec3(3, 3, 3) {
+    shape Rect {
+        segment Floor depth = 3.0 {
+            distance RectFrustum from = vec3(0.5, 0.5, 0.0) to = vec3(0.5, 0.5, 3.0) base_wh = vec2(1.4, 0.6) top_wh = vec2(0.6, 1.0) angle = 0 {
+                volume {
+                    Metal;
+                }
+            }
+        }
+    }
+}
+place Box at = vec3(0, 0, 0);\
+`}
+  height={300}
+  caption="RectFrustum"
+/>
+
+Rectangular frustum; equal sizes produce a straight box column.

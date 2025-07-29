@@ -1,0 +1,16 @@
+voxel Box size = vec3(4, 3, 4) {
+    shape Rect {
+        segment Left depth = 0.1 {
+            pattern Modulo size = 1 {
+                even {
+                    Black;
+                }
+                odd {
+                    White;
+                }
+            }
+        }
+    }
+}
+
+place Box at = vec3(0, 0, 0);
