@@ -1,10 +1,22 @@
 voxel Box size = 4 {
     shape Rect {
-        segment Left depth = 0.3 {
-            if u <= 2 {
-                White;
+        segment Left depth = 0.5 {
+            if v > 2 {
+                Metal;
+
+                if d > 0.4 {
+                    // Relief
+                    let relief = fract(u / 0.4);            
+                    if relief > 0.1 && relief < 0.4 {
+                        Clear;
+                    }                
+                }
             } else {
-                Black;
+                if u <= 2 {
+                    White;
+                } else {
+                    Black;
+                }                
             }
         }
     }
