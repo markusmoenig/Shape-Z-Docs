@@ -40,7 +40,7 @@ export default function Home() {
       <main>
         <div className="center-content">
           <MarkdownPage />
-          <ShpzPlayground />
+          {/* <ShpzPlayground /> */}
         </div>
       </main>
     </Layout>

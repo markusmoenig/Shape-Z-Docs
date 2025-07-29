@@ -10,8 +10,8 @@ export default function ShpzPlayground({
   initialSplit = 80,      // editor pane width in percent
   autoCompile = false,    // re-check + render on edit (debounced)
   caption = '',           // toolbar label
-  renderWidth = 400,
-  renderHeight = 400,
+  renderWidth = 300,
+  renderHeight = 300,
   samplesPerFrame = 1,
   totalSamples = 10
 }) {

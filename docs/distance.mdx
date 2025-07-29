@@ -1,0 +1,52 @@
+---
+sidebar_position: 3
+---
+
+# Distance Functions
+
+**Shape-Z** supports a variety of signed distance functions (SDFs) for modeling volumetric geometry. Most of these (e.g., `Cylinder`, `RectFrustum`, `NgonFrustum`, `Cone`, `Capsule`, `Vesica`, `BoxBetween`) are defined **between two points**, via a `from` and `to` vector. Others, like `Sphere` and `Box`, are defined via an `at` position and their size in `u`, `v`, `d` coordinates.
+
+Inside any `distance` block, the system redefines `u`, `v`, and `d` as **normalized coordinates** in `[0,1]`, relative to the shape’s own coordinate space:
+- `d`: normalized axial position along the shape (0 at `from`, 1 at `to`)
+- `u`, `v`: normalized horizontal and vertical coordinates within the local cross-section at each `d`
+
+This normalized domain makes it easy to create reusable, size-independent patterns and deformations.
+
+#### `volume { ... }`
+
+The `volume` block defines what should be placed **inside** the shape. The system only evaluates this block for voxels that fall within the SDF (i.e., inside the shape boundary), and it gives access to the normalized `u`, `v`, `d` as well as the SDF value `inside` in world units.
+
+Example:
+```c
+if inside < 0.1 && d < 0.8 {
+    Whiskey;
+}
+```
+
+#### `profile_offset { ... }`
+
+This optional block allows you to modify the shape's surface by **adding or removing thickness**. It returns a world-unit offset that is subtracted from the computed SDF.
+
+- A positive return value **shrinks** the shape.
+- A negative return value **expands** the shape.
+
+Example:
+```rust
+let ang  = atan2(v - 0.5, u - 0.5);
+let face = cos(ang * 4.0);
+let bell = 1.0 - pow(2.0 * abs(d - 0.5), 2.0);
+-0.05 * face * bell;
+```
+
+This adds fourfold symmetric bulges to the sides of the shape, strongest around the center (`d = 0.5`).
+
+#### `profile_scale { ... }`
+
+This block allows the shape’s cross-section to be **scaled** per voxel before the SDF is computed. The return value is a **scale factor** applied to `u` and `v` dimensions (not `d`).
+
+Example:
+```rust
+1.0 - 0.2 * smoothstep(0.0, 1.0, d);
+```
+
+This line gradually scales down the cross-section toward the `to` end of the shape.

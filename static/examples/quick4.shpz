@@ -1,0 +1,90 @@
+
+material Bricks {
+    albedo {
+        vec3(1.0, 0.5, 0.5) + (hash - 0.5) * 0.3;
+    }
+    roughness {
+        1;
+    }
+}
+
+material Wood {
+    albedo {
+        vec3(0.70, 0.40, 0.20) + (hash - 0.5) * 0.2;
+    }
+    roughness {
+        1;
+    }
+}
+
+voxel Box size = vec3(4, 4, 4) {
+    shape Rect {
+        segment Left depth = 1.0 {
+            if d <= 0.05 {
+                // Back Wall Color
+                White;
+            } else
+            if d < 0.2 {
+                // Bricks in the middle
+                pattern Bricks  size = vec2(0.3, 0.1) gap = 0.04, rounding = 0.1 {
+                    brick {
+                        Bricks;
+                    }
+                    cement {
+                        White;
+                    }
+                } 
+            }
+            // Front Wall Color
+            if d > 0.2 && d < 0.22 && u < 2 && (v < 1.0 || v > 3.0) {
+                White;
+            }        
+        }
+    }
+
+    segment Back depth = 0.2 {
+        if v < 2.9 {
+            pattern Bricks size = vec2(10, 0.1), gap = 0.09, rounding = 0.0 {
+                brick {
+                    White;
+                }
+                cement {
+                    if d < 0.18 {
+                        White;
+                    }
+                }
+            }  
+        } else {
+            White;
+        }            
+
+        // Use a rectangular shape to clear the window voxels.
+        shape Rect at = vec2(0.5, 0.7), size = vec2(2, 1.4) {
+            Clear; // Clear window voxels
+            if d > 0.08 && d < 0.12 {
+                Glass; // Add Glass in the middle
+            }
+        }
+    }
+
+    segment Floor depth = 1.5{      
+        if_clear {  
+            if d < 0.12 {
+                if d >  0.08 && d < 0.12 {
+                    pattern Bricks size = vec2(1.2, 0.15), gap = 0.01, rounding = 0.0 {
+                        brick {
+                            Wood;
+                        }
+                        cement {
+                            Wood;
+                        }
+                    }    
+                }  else {
+                    White;
+                } 
+            }
+        }      
+    }
+}
+
+place Box at = vec3(0, 0, 0);

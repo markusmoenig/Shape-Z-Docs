@@ -21,8 +21,12 @@ You can easily change the density, more on that later.
 
 The `Black` material is one of the 4 default materials of **Shape-Z**. Here, we are simply telling the system to apply the Black material to every voxel inside the box.
 
-**Shape-Z** uses a math syntax similar to **GLSL**, but internally it operates entirely on a single type: `vec3`.  
+**Shape-Z** uses a math syntax similar to **GLSL**, but internally it operates entirely on a single language type: `vec3`, which you can define as `4`, `4.0`, `vec2(0, 1)`, or `vec3(1, 2.0, .5)`.
+
+### Shader like modeling
+
 In the next example, we manually calculate the distance to a sphere at the center of the voxel box.  
+
 While **Shape-Z** offers many built-in tools to simplify tasks like this, it's helpful to understand that you can also write code much like a fragment shader.
 
 <ShpzPlayground
@@ -33,10 +37,67 @@ While **Shape-Z** offers many built-in tools to simplify tasks like this, it's h
 
 The system variable `local` defines the position of each voxel in local space, with the origin at the center of the voxel box.
 
-Now let's get started with some core modeling mechanics. Shapes subdivide space and can further be folded via segments.
+This kind of free-style is very useful for procedural, noise based modeling. The rocks in the light house example were created this way.
+
+### Core modeling mechanics
+
+**Shapes** define a working region (and often a coordinate system—e.g., `Rect` is Cartesian, `Disc` is polar). Shapes can be further **subdivided by segments** (e.g., `Floor`, `Left`, `Right`), which establish a local domain and the convenience variables **`u`**, **`v`**, and **`d`**.
+
+In **segments**, `u` (horizontal), `v` (vertical), and `d` (depth/extrusion) are given in **segment-local world units**, measured relative to the segment’s origin and active plane.
+
+Because segments/nodes consistently provide `u`, `v`, `d` in their local domain, **modeling and patterning are independent of where they run**. For example, a `Bricks` pattern can be applied to any segment; on a `Disc`, the shape exposes a **polar domain** so `u` naturally follows the angle around the circle.
+
+In the next example we create a very simple pattern on the `Left` wall (a segment of the `Rect` shape), by checking the values of `u`, `v` and `d`.
 
 <ShpzPlayground
     src = "/examples/quick3.shpz"
-    height={300}
-    caption="Left Wall"
+    height={500}
+    caption="Left Wall Example"
 />
+
+In the upper half of the left wall we create a simple relief pattern. The `Clear` instruction clears any voxel which may have been previously set. In the lower half we just set the left side of the wall to `Black` and the right side to `White`.
+
+By being able to control the extrusion of the wall via the `d` variable we have a powerful tool to shape the depth of segments. The `d` variable always starts at 0 at the outside of the segment to the given `depth` of the segment.
+
+Try to replace 'Left' with any other sub-segment of `Rect`, i.e. `Back`, `Right`, `Front`, `Floor` and `Ceiling`. You will notice that the pattern will stay the same.
+
+### Patterns and Materials
+
+In the next example we take things a step further and apply the `Bricks` pattern—each with different parameters—to the **Left** and **Back** walls, as well as the **Floor**. Because patterns operate in the local `(u, v, d)` domain of the active segment, the same pattern adapts automatically to each surface and orientation.
+
+We also declare two **materials**: one dedicated to the left-wall bricks and one for the floor. Materials in **Shape-Z** follow a **Disney/Principled BSDF** model, so you can control albedo, roughness, metallic, IOR, transmission, and more. To introduce natural variation, we use the built-in **`hash`** variable. When a pattern (e.g., `Bricks`) executes, it assigns `hash ∈ [0,1]` in a **stable, per-cell** manner (for example, per brick). You can use `hash` to modulate color or micro-properties for believable randomness.
+
+<ShpzPlayground
+    src = "/examples/quick4.shpz"
+    height={500}
+    caption="Patterns and Materials"
+/>
+
+Other things to note: the floor uses an `if_clear` block. Since **Shape-Z** already set voxels for the **Left** and **Back** walls—where the segments overlap—we don't want to overwrite those with floor voxels. `if_clear` ensures that we only set voxels **if the space is currently empty**.
+
+On the **Back** wall, we also place a `shape` to **clear** a window-sized space in the middle of the wall. Shape placement always uses the current `(u, v, d)` coordinates, but **normalized** to the segment's size. A value of `0` places the shape fully at the start of the segment, `0.5` centers it, and `1` places it fully at the end. This makes precise placement intuitive and consistent across different segment sizes.
+
+On the `Left` wall, we placed some patches of cement or color **on top of the bricks**—just to demonstrate how we can model volumes with real **content layering** and **depth**.
+
+### Distance Functions
+
+Distance-based shapes in **Shape-Z**—like `Cylinder`, `RectFrustum`, `NgonFrustum`, `Cone`, `Capsule`, and `Vesica`—are defined between two points (`from`, `to`). Others like `Sphere` and `Box` use a center point (`at`) and a size.
+
+Inside a `distance` block, you work with normalized shape-local coordinates:
+- `d`: along the shape's axis (from 0 to 1)
+- `u`, `v`: horizontal and vertical coordinates within the cross-section at each `d`
+
+These coordinates make it easy to apply consistent details, deformations, and materials regardless of size or orientation.
+
+A `volume { ... }` block defines the content inside the shape. You can also optionally define:
+- `profile_offset { ... }` to deform the surface
+- `profile_scale { ... }` to vary thickness over the shape
+
+This enables complex modeling like bulging bottles, tapering beams, or ornamental pillars with just a few lines of code.
+
+<ShpzPlayground
+    src = "/examples/quick5.shpz"
+    height={500}
+    caption="Distance Shapes with Profiles"
+/>
+

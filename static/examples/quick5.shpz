@@ -1,0 +1,50 @@
+config background {
+    1.0;
+}
+
+voxel Flask size = vec3(3, 3, 3) {
+  shape Rect {
+    segment Floor depth = 2.4 {
+
+      distance RectFrustum
+        from  = vec3(0.5, 0.5, 0.000),
+        to    = vec3(0.5, 0.5, 0.833),
+        base  = vec2(1.7, 1.7),
+        top   = vec2(1.2, 1.2),
+        angle = 0.0
+      {
+        profile_offset {
+          let su = abs(u - 0.5) * 2.0;
+          let sv = abs(v - 0.5) * 2.0;
+          let face_axis   = min(su, sv);   // small on faces, large near corners
+          let corner_axis = max(su, sv);   // large near corners
+
+          // Strongest mid-body
+          let bell = 4.0 * d * (1.0 - d);
+
+          // Tighter transitions to eliminate a single long wave across faces
+          let face_mask   = 1.0 - smoothstep(0.33, 0.36, face_axis);  
+          // Flat across face only near corners
+          let corner_mask =        smoothstep(0.85, 0.95, corner_axis); 
+
+          // Inward on faces, gentle outward on corners
+          let faces   = -0.06 * face_mask * bell;
+          let corners =  0.03 * corner_mask * bell;
+          faces + corners;
+        }
+
+        volume {
+            if inside < 0.05 { Metal; } 
+            else { 
+                Clear; 
+            }
+            if d > 0.98 {
+                Clear;
+            }
+        }        
+      }
+    }
+  }
+}
+
+place Flask at = vec3(0, 0, 0);
