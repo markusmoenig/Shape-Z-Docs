@@ -3,7 +3,7 @@ sidebar_position: 6
 title: Internals & Todo
 ---
 
-**Shape-Z** has a manual parser which writes out an AST. The AST in turn compiles the code into a recursive byte code VM. The VM is about 15% slower than native rust code.
+**Shape-Z** has a manual parser which generates an AST. The AST in turn compiles the code into a recursive byte code VM. The VM is about 15% slower than native rust code.
 
 This is partly thanks to the fact that we only have one internal data type: `vec3`, so each operation (like a `cos`) is always executed on all 3 components. Which is fine on native as it is SIMD anyway, but it is one of the reasons the WASM code on this website is slower (because no SIMD support for WASM yet).
 
@@ -23,3 +23,5 @@ The todo list for Shape-Z is long.
 * More 3D mesh export formats beside .OBJ and support for textures (for patterns etc).
 * More SDF helpers (the list is nearly endless here).
 * A GitHub based treasury for materials and modules to build up a DB of content which Shape-Z can freely access.
+
+And of course a lot more shapes, patterns, distance volumes etc.
