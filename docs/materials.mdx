@@ -1,0 +1,111 @@
+---
+sidebar_position: 6
+title: Materials
+---
+
+Every **voxel** in Shape-Z is shaded with a *Disney Principled BSDF* material.  
+You define a material once and then reference it anywhere in your shapes or patterns.
+
+```shpz
+material Rock {
+    albedo    { … }
+    roughness { … }
+    …
+}
+```
+
+A material block is just a collection of **parameter sub-blocks**—each one returns either a float or a `vec3` colour.  
+Inside those blocks you can use any Shape-Z expression, including helper functions, noise, and the special `hash` value that comes from the caller (e.g. a pattern or noise field).
+
+---
+
+## Supported Disney BSDF parameters
+
+| Parameter          | Type   | Range | What it controls                                        |
+|--------------------|--------|-------|---------------------------------------------------------|
+| `albedo`           | `vec3` | 0-1   | Base diffuse / base-colour                              |
+| `subsurface`       | float  | 0-1   | Soft, waxy *subsurface scattering*                      |
+| `metallic`         | float  | 0-1   | 0 = dielectric, 1 = perfect metal                       |
+| `specular_tint`    | float  | 0-1   | Tints the specular lobe towards the albedo hue          |
+| `roughness`        | float  | 0-1   | Micro-surface roughness; lower = sharper highlights     |
+| `anisotropic`      | float  | 0-1   | Highlight stretching (e.g. brushed metal)               |
+| `sheen`            | float  | 0-1   | Velvet-like retro-reflection on grazing angles          |
+| `sheen_tint`       | float  | 0-1   | Tints the sheen towards the albedo                      |
+| `clearcoat`        | float  | 0-1   | Extra clear-coat layer on top (car paint)               |
+| `clearcoat_gloss`  | float  | 0-1   | Roughness of that clear-coat layer                      |
+| `ior`              | float  | ≥1    | Index of refraction for dielectrics                     |
+| `transmission`     | float  | 0-1   | Glass-like transparency; enables **volumetric** shading |
+| `emission`         | `vec3` | any   | Self-emitted light (makes voxels glow)                  |
+
+:::tip 
+Parameters you leave out default to physically sensible values (e.g. `metallic = 0`, `roughness = 0.5`, …).
+:::
+
+---
+
+#### Example
+
+```shpz
+material Rock {
+    // Slightly varied, desaturated pinkish base colour
+    albedo {
+        mix(vec3(0.70, 0.45, 0.50),
+            vec3(0.60, 0.60, 0.65),
+            hash);
+    }
+
+    // Semi-glossy surface with per-voxel variation
+    roughness { 0.2 + (hash - 0.5) * 0.2; }
+
+    // A metallic, tinted stone with a subtle clear-coat
+    metallic        { 1.0; }
+    specular_tint   { 0.2 + (hash - 0.5) * 0.2; }
+    clearcoat       { 0.3 + (hash - 0.5) * 0.2; }
+    clearcoat_gloss { 0.8 + (hash - 0.5) * 0.15; }
+}
+```
+
+* `hash` is a uniform value (0-1) supplied by the **pattern** or **noise** that applied the material, giving you easy per-voxel variation without extra random calls.  
+* Because `transmission` is **not** set the material stays opaque; adding a `transmission { … }` block automatically flags it as **volumetric** so Shape-Z’s renderer can handle refraction and absorption.
+
+---
+
+#### Practical notes
+
+* **Stay in the physical range** (0-1 for most floats) for predictable lighting.
+* **Emission** is evaluated in linear colour space—use realistic luminance (e.g. `vec3(5.0)` for a bright LED).
+* Materials are lightweight; create as many as you need.
+* Reuse materials across files by placing them in a shared `.shpz` and `import`-ing it.
+
+That’s all you need to craft anything from dull concrete to shimmering glass within Shape-Z.
+
+---
+
+### Volumetric Mediums
+
+In addition to surface parameters, a material can define a **medium** sub‑block that controls how light behaves *inside* the volume—perfect for water, fog, glass, or flames.
+
+```shpz
+material WaterMedium {
+    medium Absorb {
+        color   { vec3(0.0, 0.6, 0.5); } // absorption tint
+        density { 0.5; }                // strength of absorption
+    }
+}
+```
+
+#### Supported medium types
+
+| Medium      | Purpose                                              | Required fields                                  |
+|-------------|------------------------------------------------------|--------------------------------------------------|
+| `Absorb`    | Pure absorption/attenuation—tinted glass, murky water | `color`, `density`                               |
+| `Emissive`  | Participating medium that **adds** light—flames, plasma | `color`, `intensity`                             |
+| `Scatter`   | Isotropic scattering—mist, fog, smoke                 | `color`, `density`, *(optional)* `anisotropy`    |
+
+:::tip
+A material becomes **volumetric** as soon as it contains a `medium` block *or* sets `transmission`.
+:::
+
+* **Density** scales the effect strength; higher values mean stronger absorption or scattering over the same distance.  
+* Media are evaluated per‑ray segment inside the voxel, so thin objects may appear almost clear while thick volumes show the full effect.  
+* Combine multiple media by layering materials (e.g. glowing fog inside tinted glass) for complex visuals.

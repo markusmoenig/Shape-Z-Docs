@@ -1,0 +1,64 @@
+---
+sidebar_position: 7
+title: Language Reference
+---
+
+Besides the syntactic sugar afforded by `shape` blocks and other high‑level constructs, **Shape‑Z** provides a powerful GLSL‑style math system.
+
+## Variables
+
+```rust
+let pos = vec3(0.0, 0.0, 0.0);
+let pos = 0;          // promotes to vec3(0.0, 0.0, 0.0)
+let pos = vec2(0.5);  // promotes to vec3(0.5, 0.5, 0.5)
+```
+
+
+All three statements create a variable named `pos`, but they demonstrate different ways of supplying the value. **Shape‑Z** internally stores every value as a `vec3`, so scalars and 2‑component vectors are automatically promoted.
+
+Vector components can be accessed or modified individually via the `.x`, `.y`, and `.z` suffixes:
+
+```rust
+let p = vec3(1.0, 2.0, 3.0);
+let h = p.y;  // h == 2.0
+
+p.z = 0.0;    // p is now vec3(1.0, 2.0, 0.0)
+```
+
+You can define variables anywhere in the code and at any block level. However **Shape-Z** does not support variables per block, every variable is stored in a flat array internally in the VM for performance reasons. If you redefine a variable **Shape-Z** will re-use the pre-existing variable slot and overwrite the previous value.
+
+## Inbuilt Math Functions
+
+The table below lists functions that are available in every expression. Most mirror standard GLSL behaviour, while a few domain‑specific helpers—such as `value_noise`—extend the set.
+
+| Function | Args | Description |
+|----------|------|-------------|
+| `abs(x)` | 1 | Absolute value, component‑wise |
+| `atan(x)` | 1 | Arctangent of *x* (radians) |
+| `atan2(y, x)` | 2 | Arctangent of *y/x* preserving quadrants (radians) |
+| `ceil(x)` | 1 | Smallest integer ≥ *x* |
+| `clamp(x, min, max)` | 3 | Clamps *x* to the range [min, max] |
+| `cos(x)` | 1 | Cosine of *x* (radians) |
+| `cross(a, b)` | 2 | 3‑D cross product |
+| `degrees(x)` | 1 | Converts radians to degrees |
+| `dot(a, b)` | 2 | Dot (scalar) product |
+| `floor(x)` | 1 | Largest integer ≤ *x* |
+| `fract(x)` | 1 | Fractional part of *x* |
+| `length(v)` | 1 | Euclidean length of vector *v* |
+| `log(x)` | 1 | Natural logarithm of *x* |
+| `max(a, b)` | 2 | Component‑wise maximum |
+| `min(a, b)` | 2 | Component‑wise minimum |
+| `mix(a, b, t)` | 3 | Linear interpolation: *a*(1‑*t*) + *b* *t* |
+| `mod(x, y)` | 2 | Component‑wise remainder of *x / y* |
+| `normalize(v)` | 1 | Returns *v* scaled to unit length |
+| `point_at(p)` | 1 | Converts a normalized *(u,v,d)* into world space along the current segment |
+| `pow(x, y)` | 2 | Component‑wise power *x^y* |
+| `radians(x)` | 1 | Converts degrees to radians |
+| `sin(x)` | 1 | Sine of *x* (radians) |
+| `smoothstep(edge0, edge1, x)` | 3 | Smooth Hermite interpolation between *edge0* and *edge1* |
+| `smooth_union(d1, d2, k)` | 3 | Softly blends two signed‑distance fields with blend radius *k* |
+| `sqrt(x)` | 1 | Square root of *x* |
+| `step(edge, x)` | 2 | Returns 0 if *x* &lt; *edge* else 1 |
+| `tan(x)` | 1 | Tangent of *x* (radians) |
+| `value_noise(octaves, scale)` | 2 | Fractal value‑noise sample; *octaves* (float) sets the number of layers, *scale* (vec3) controls the frequency |
+| `white_noise()` | 0 | Pseudo‑random value in [0, 1] tied to the current voxel |

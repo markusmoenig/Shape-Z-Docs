@@ -24,7 +24,7 @@ You write code that **precisely defines how space is filled**, using recursive s
 
 The lighthouse model shown above consists of ~11 million voxels and is fully generated in under a second (at a density of 50 per unit).
 
-The native version of **Shape-Z** is much faster the the examples on this Website running in WASM. For testing the real performance please make sure to install [shpz](/docs/installation.mdx).
+Install the [native version](/docs/installation) of **Shape-Z** for maximum performance. Although the web version supports multi‑threading, it is still significantly slower because WebAssembly currently lacks SIMD instructions.
 
 Shape-Z supports configurable **voxel density**, allowing you to repurpose the same model for pixel art or high-resolution mesh export.
 

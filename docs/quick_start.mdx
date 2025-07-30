@@ -24,6 +24,10 @@ The `Black` material is one of the 4 default materials of **Shape-Z**. Here, we 
 
 **Shape-Z** uses a math syntax similar to **GLSL**, but internally it operates entirely on a single language type: `vec3`, which you can define as `4`, `4.0`, `vec2(0, 1)`, or `vec3(1, 2.0, .5)`.
 
+:::tip 
+Install the [native version](/docs/installation) of **Shape-Z** for maximum performance. Although the web version supports multi‑threading, it is still significantly slower because WebAssembly currently lacks SIMD instructions.
+:::
+
 ### Shader like modeling
 
 In the next example, we manually calculate the distance to a sphere at the center of the voxel box.  
