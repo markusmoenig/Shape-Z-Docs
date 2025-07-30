@@ -132,6 +132,7 @@ const config = {
           },
           // { to: '/blog', label: 'Blog', position: 'left' },
           { to: "/news", label: "News", position: "left" },
+          { to: "/gallery", label: "Gallery", position: "left" },
           { to: "/sponsor", label: "Sponsor", position: "left" },
           {
             type: "html",
